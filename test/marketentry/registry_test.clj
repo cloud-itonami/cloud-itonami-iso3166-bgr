@@ -1,0 +1,43 @@
+(ns marketentry.registry-test
+  (:require [clojure.test :refer [deftest is testing]]
+            [marketentry.registry :as registry]))
+
+(deftest engagement-fee-recompute
+  (let [e {:base-fee 500000 :monthly-rate 30000 :monitoring-months 12 :claimed-fee 860000.0}]
+    (is (== 860000.0 (registry/compute-engagement-fee e)))
+    (is (true? (registry/engagement-fee-matches-claim? e))))
+  (let [bad {:base-fee 500000 :monthly-rate 30000 :monitoring-months 12 :claimed-fee 999000.0}]
+    (is (false? (registry/engagement-fee-matches-claim? bad)))))
+
+(deftest register-draft-and-submit
+  (let [d (registry/register-draft "eng-1" "BGR" 0)
+        s (registry/register-submit "eng-1" "BGR" 0)]
+    (is (= "BGR-DFT-000000" (get d "draft_number")))
+    (is (= "BGR-SUB-000000" (get s "submit_number")))
+    (is (nil? (get-in d ["certificate" "proof"])))
+    (is (= "draft-unsigned" (get-in s ["certificate" "status"])))))
+
+(deftest register-requires-ids
+  (is (thrown? Exception (registry/register-draft "" "BGR" 0)))
+  (is (thrown? Exception (registry/register-submit "eng-1" "" 0))))
+
+(deftest tax-arrears-de-minimis-threshold-recompute
+  (testing "1% of annual turnover, when below the BGN 50,000 cap"
+    (is (== 20000.0 (registry/tax-arrears-de-minimis-threshold {:annual-turnover 2000000}))))
+  (testing "capped at BGN 50,000 regardless of turnover"
+    (is (== 50000.0 (registry/tax-arrears-de-minimis-threshold {:annual-turnover 10000000}))))
+  (testing "zero/missing turnover -> zero threshold"
+    (is (== 0.0 (registry/tax-arrears-de-minimis-threshold {})))))
+
+(deftest tax-arrears-exceeds-threshold
+  (testing "arrears below threshold -> does not exceed (ЗОП Art. 54(5) de-minimis applies)"
+    (is (false? (registry/tax-arrears-exceeds-threshold?
+                 {:annual-turnover 2000000 :tax-arrears-amount 15000}))))
+  (testing "arrears exactly at threshold -> does not exceed"
+    (is (false? (registry/tax-arrears-exceeds-threshold?
+                 {:annual-turnover 2000000 :tax-arrears-amount 20000}))))
+  (testing "arrears above threshold -> exceeds (ЗОП Art. 54(1)(3) mandatory exclusion ground)"
+    (is (true? (registry/tax-arrears-exceeds-threshold?
+                {:annual-turnover 1000000 :tax-arrears-amount 25000}))))
+  (testing "no arrears declared -> never exceeds"
+    (is (false? (registry/tax-arrears-exceeds-threshold? {:annual-turnover 2000000})))))
