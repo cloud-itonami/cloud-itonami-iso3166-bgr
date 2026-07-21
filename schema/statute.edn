@@ -1,0 +1,15 @@
+;; schema/statute.edn — DataScript schema for `statute.facts` (ADR-2607141700).
+;; Same shape convention as etzhayyim/global-legislation-datoms/schema/legislation.edn
+;; (:db/unique identity + :db/index on the fields queries filter by).
+;; Identical shape to cloud-itonami-iso3166-jpn/-deu's sibling files.
+
+{:statute/id {:db/unique :db.unique/identity}
+ :statute/title {}
+ :statute/jurisdiction {:db/index true}
+ :statute/kind {:db/index true}
+ :statute/law-number {}
+ :statute/url {}
+ :statute/url-provenance {:db/index true}
+ :statute/enacted-date {}
+ :statute/retrieved-at {}
+ :statute/topic {:db/cardinality :db.cardinality/many :db/index true}}

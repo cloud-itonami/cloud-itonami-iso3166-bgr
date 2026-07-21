@@ -1,0 +1,36 @@
+;; data/datascript-tx.edn — DataScript tx-data derived from src/statute/facts.cljc
+;; `statute.facts/catalog` (ADR-2607141700 Wave 0). Same "no :db/id per entity,
+;; DataScript auto-assigns" shape as etzhayyim/global-legislation-datoms.
+;; `:statute/topic` is serialized as a vector here (source-of-truth `catalog` in
+;; facts.cljc uses a set; this file is the derived, query-engine-facing form).
+
+[#:statute{:id "bgr.commerce-act"
+           :title "Търговски закон (Commerce Act)"
+           :jurisdiction "BGR"
+           :kind :law
+           :law-number "ТЗ, обн. ДВ. бр.48 от 18.06.1991 г."
+           :url "https://justice.government.bg/api/part/GetBlob?hash=FD5CC887FC3AAF4F77F63C81D1B1D96B"
+           :url-provenance :official-ministry-of-justice
+           :enacted-date "1991-07-01"
+           :retrieved-at "2026-07-21"
+           :topic [:corporate-governance :incorporation]}
+ #:statute{:id "bgr.personal-data-protection-act"
+           :title "Закон за защита на личните данни (Personal Data Protection Act)"
+           :jurisdiction "BGR"
+           :kind :law
+           :law-number "ЗЗЛД, обн. ДВ. бр.1 от 04.01.2002 г."
+           :url "https://cpdp.bg/en/legislation/personal-data-protection-act/"
+           :url-provenance :official-cpdp
+           :enacted-date "2002-01-04"
+           :retrieved-at "2026-07-21"
+           :topic [:data-protection :privacy]}
+ #:statute{:id "bgr.labour-code"
+           :title "Кодекс на труда (Labour Code)"
+           :jurisdiction "BGR"
+           :kind :law
+           :law-number "КТ, обн. ДВ. бр.27 от 04.04.1986 г."
+           :url "https://www.justice.government.bg/home/normdoc/1594373121"
+           :url-provenance :official-ministry-of-justice
+           :enacted-date "1986-04-04"
+           :retrieved-at "2026-07-21"
+           :topic [:labor :employment]}]
