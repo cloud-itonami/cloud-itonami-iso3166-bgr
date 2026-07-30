@@ -21,7 +21,8 @@
   (:require #?(:clj  [clojure.edn :as edn]
                :cljs [cljs.reader :as edn])
             [marketentry.registry :as registry]
-            [langchain.db :as d]))
+            [langchain.db :as d]
+            [marketplace.persist :as persist]))
 
 (defprotocol Store
   (engagement [s id])
@@ -310,3 +311,78 @@
 (defn datomic-seed-db
   []
   (datomic-store (demo-data)))
+
+;; ----------------------------- KotobaseStore (the Worker's) -----------------------------
+
+(defrecord KotobaseStore [st seed]
+  Store
+  (engagement [_ id]
+    (when id (persist/get-doc (persist/ctx st :engagement :engagement/id) id)))
+  (all-engagements [_]
+    (sort-by :id (persist/all-docs (persist/ctx st :engagement :engagement/id))))
+  (assessment-of [_ engagement-id]
+    (persist/get-doc (persist/ctx st :assessment :assessment/engagement-id) engagement-id))
+
+  (ledger [_] (persist/read-events (persist/stream-ctx st :ledger)))
+  (draft-history [_] (persist/read-events (persist/stream-ctx st :draft)))
+  (submit-history [_] (persist/read-events (persist/stream-ctx st :submit)))
+
+  ;; MemStore keeps a per-jurisdiction counter; here the count of the stream
+  ;; IS that counter. This actor covers exactly one jurisdiction, and every
+  ;; draft appends exactly one record, so the two agree - and a length is a
+  ;; read where a counter document would be a read-modify-write that two
+  ;; concurrent drafts would collide on.
+  (next-draft-sequence [s _jurisdiction] (count (draft-history s)))
+  (next-submit-sequence [s _jurisdiction] (count (submit-history s)))
+
+  (engagement-already-drafted? [s engagement-id]
+    (boolean (:drafted? (engagement s engagement-id))))
+  (engagement-already-submitted? [s engagement-id]
+    (boolean (:submitted? (engagement s engagement-id))))
+
+  (commit-record! [s {:keys [effect path value payload]}]
+    (case effect
+      :engagement/upsert
+      (let [c (persist/ctx st :engagement :engagement/id)
+            existing (persist/get-doc c (:id value))]
+        (persist/put-doc! c (merge existing value)))
+
+      :assessment/set
+      (persist/put-doc! (persist/ctx st :assessment :assessment/engagement-id)
+                        (assoc payload :assessment/engagement-id (first path)))
+
+      :engagement/mark-drafted
+      (let [engagement-id (first path)
+            {:keys [result engagement-patch]} (draft-filing! s engagement-id)
+            c (persist/ctx st :engagement :engagement/id)]
+        (persist/append-event! (persist/stream-ctx st :draft) seed result)
+        (persist/put-doc! c (merge (persist/get-doc c engagement-id) engagement-patch))
+        result)
+
+      :engagement/mark-submitted
+      (let [engagement-id (first path)
+            {:keys [result engagement-patch]} (submit-filing! s engagement-id)
+            c (persist/ctx st :engagement :engagement/id)]
+        (persist/append-event! (persist/stream-ctx st :submit) seed result)
+        (persist/put-doc! c (merge (persist/get-doc c engagement-id) engagement-patch))
+        result)
+      nil)
+    s)
+
+  (append-ledger! [_ fact]
+    (persist/append-event! (persist/stream-ctx st :ledger) seed fact)
+    fact)
+
+  (with-engagements [s engagements]
+    (let [c (persist/ctx st :engagement :engagement/id)]
+      (doseq [[_ e] engagements] (persist/put-doc! c e)))
+    s))
+
+(defn kotobase-store
+  "The durable Store over a HOST-INJECTED database api.
+
+  `marketplace.persist/store` throws when `db-api` is missing or partial, so
+  this actor cannot come up looking durable while writing to nothing."
+  [{:keys [db-api seq-fn]}]
+  (->KotobaseStore (persist/store {:db-api db-api :actor "marketentry-bgr"})
+                   (or seq-fn (let [n (atom 0)] #(swap! n inc)))))
