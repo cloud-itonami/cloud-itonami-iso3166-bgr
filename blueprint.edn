@@ -7,4 +7,12 @@
  :itonami.blueprint/governor :market-entry-compliance-governor
  :itonami.blueprint/robotics false
  :itonami.blueprint/required-technologies [:identity :forms :dmn :bpmn :audit-ledger]
- :itonami.blueprint/status :public-oss}
+ :itonami.blueprint/status :public-oss
+ ;; Deployed into the ai-gftd-repository-dispatch namespace (Workers for
+ ;; Platforms). A user Worker there has no URL of its own — it is reachable
+ ;; only through the dispatch Worker, so the address is the router plus this
+ ;; actor's repository name, which is also the catalog's :repo key.
+ ;; /health answers JSON, so it is declared as the probe path.
+ :itonami.blueprint/endpoint "https://itonami-fleet-dispatch.04-feasts-minded.workers.dev/cloud-itonami-iso3166-bgr"
+ :itonami.blueprint/endpoint-kind :dispatch-namespace
+ :itonami.blueprint/health-path "/health"}
