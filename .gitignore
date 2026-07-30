@@ -1,3 +1,9 @@
 /.cpcache/
 /target/
 /out/
+# Worker build + secrets. node_modules pulls a ~109 MB workerd binary.
+node_modules/
+dist/
+.shadow-cljs/
+.cpcache/
+.dev.vars

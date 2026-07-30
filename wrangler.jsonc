@@ -1,0 +1,19 @@
+{
+  "name": "cloud-itonami-iso3166-bgr",
+  "main": "dist/worker.js",
+  "compatibility_date": "2026-07-30",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true }
+  // Uploaded into the ai-gftd-repository-dispatch namespace with
+  // --dispatch-namespace and --secrets-file.
+  //
+  // `wrangler secret put` cannot reach a namespaced Worker - the flag does
+  // not exist - and .dev.vars alone is NOT picked up either. --secrets-file
+  // is the path that works, and it echoes the binding back; if that line is
+  // missing, the secret is not there.
+  //
+  // Reachable at /cloud-itonami-iso3166-bgr/* through itonami-fleet-dispatch.
+  //
+  // Secrets, never placed here:
+  //   KOTOBASE_SECRET_KEY  the fleet seed (kagi: itonami-fleet-kotobase-seed)
+}
