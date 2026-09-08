@@ -27,7 +27,7 @@
   like one and reliably find nothing to resume — an escalation that silently
   never completes is how a governor gets bypassed in practice. A durable
   checkpointer is what makes that route honest."
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [langgraph.graph :as g]
             [marketentry.operation :as operation]
             [marketentry.store :as store]
