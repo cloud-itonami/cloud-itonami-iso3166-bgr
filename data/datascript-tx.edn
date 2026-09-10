@@ -1,4 +1,4 @@
-;; data/datascript-tx.edn — DataScript tx-data derived from src/statute/facts.cljc
+;; data/datascript-tx.edn — DataScript tx-data derived from src/statute/facts.kotoba
 ;; `statute.facts/catalog` (ADR-2607141700 Wave 0). Same "no :db/id per entity,
 ;; DataScript auto-assigns" shape as etzhayyim/global-legislation-datoms.
 ;; `:statute/topic` is serialized as a vector here (source-of-truth `catalog` in
