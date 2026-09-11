@@ -38,8 +38,8 @@ department.
 | Ops | `:engagement/intake` · `:jurisdiction/assess` · `:filing/draft` · `:filing/submit` |
 | Flagship HARD check | `tax-arrears-exceeds-threshold` (ЗОП Art. 54(1)(3) + (5) de-minimis threshold, independently recomputed -- see `docs/adr/0001-architecture.md`) |
 | Compliance catalog | `src/statute/facts.kotoba` -- Commerce Act, Personal Data Protection Act, Labour Code |
-| Tests | `clojure -M:dev:test` (35 tests / 114 assertions) |
-| Demo | `clojure -M:dev:run` |
+| Tests | `kbb -M:dev:test` (35 tests / 114 assertions) |
+| Demo | `kbb -M:dev:run` |
 | Architecture ADR | [`docs/adr/0001-architecture.md`](docs/adr/0001-architecture.md) |
 
 `:filing/submit` is never in any phase's `:auto` set -- human sign-off
