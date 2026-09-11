@@ -2,7 +2,7 @@
   "name": "cloud-itonami-iso3166-bgr",
   "private": true,
   "comment": "shadow-cljs compiles src/marketentry/edge/worker.kotoba -> dist/worker.js, the kotobase host for the BGR market-entry actor.",
-  "scripts": { "build": "shadow-cljs release worker" },
+  "scripts": { "build": "amu compile --target wasm32-browser worker" },
   "devDependencies": {
     "@noble/hashes": "^2.2.0",
     "shadow-cljs": "^2.28.20",
