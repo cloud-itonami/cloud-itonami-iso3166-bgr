@@ -9,22 +9,25 @@
         ;; kotoba.lang.text, not clojure.string. Pinned as an explicit floor:
         ;; tools.deps takes the NEWEST sha it is shown, so without a floor here
         ;; this repo silently rides whatever a sibling happens to name.
-        io.github.kotoba-lang/text {:git/sha "73bdb13ae7a3d004b44bca08be03a3191157a38f"}
+        io.github.kotoba-lang/text
+        {:git/url "https://github.com/kotoba-lang/kotoba.git"
+         :git/sha "7e1dbe0aece831138e6106c59d2b26375d0f60c4"
+         :deps/root "lib/kotoba.text"}
        io.github.kotoba-lang/langgraph
-        {:local/root "../../kotoba-lang/langgraph"}
+        {:local/root "../../kotoba-lang/kotoba/lib/kotoba.langgraph"}
         ;; The HOST half, shared with the marketplace family rather than
         ;; reimplemented.
         io.github.kotoba-lang/marketplace
-        {:local/root "../../kotoba-lang/marketplace"}
+        {:local/root "../../kotoba-lang/kotoba/lib/kotoba.marketplace"}
         io.github.kotoba-lang/kotobase-client
-        {:local/root "../../kotoba-lang/kotobase-client"}}
+        {:local/root "../../kotoba-lang/kotoba/lib/kotoba.kotobaseClient"}}
  :aliases
  {;; the Worker build's classpath
   :cljs {:extra-deps {thheller/shadow-cljs {:mvn/version "2.28.20"}}}
   ;; offline workspace dev -- pin transitive langchain to local checkout
   :dev {:override-deps
         {io.github.kotoba-lang/langchain
-         {:local/root "../../kotoba-lang/langchain"}}}
+        {:local/root "../../kotoba-lang/kotoba/lib/kotoba.langchain"}}}
   ;; kbb -M:dev:run  -> drive the demo through one OperationActor
   :run {:main-opts ["-m" "marketentry.sim"]}
   :test {:extra-paths ["test"]
